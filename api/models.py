@@ -24,7 +24,7 @@ class Clinic(models.Model):
     field_practice = models.CharField(max_length=32)
     description = models.TextField()
     phone_number = models.CharField(max_length=16)
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
     country = models.CharField(max_length=32)
     city = models.CharField(max_length=48)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)

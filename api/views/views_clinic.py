@@ -23,3 +23,24 @@ class ClinicView(APIView):
                 'results': serializer.data,
             }
         )
+
+    def post(self, request):
+        serializer = ClinicSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save(
+                owner=request.user
+            )
+            return Response(
+                {
+                    'data':serializer.data,
+                    'message':'Your clinic is awaiting approval, an email will be sent with more info',
+                },
+                status=status.HTTP_201_CREATED
+            )
+
+        else:
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
