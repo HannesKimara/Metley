@@ -26,3 +26,6 @@ celerybeat.pid
 # Coverage reports
 .coverage
 .coverage.*
+
+# Editor files
+.vscode/
