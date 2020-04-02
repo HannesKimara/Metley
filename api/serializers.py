@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Profile, Clinic
+from .models import Profile, Clinic, Chat
 from authapi.models import User
 
 
@@ -30,3 +30,17 @@ class ClinicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Clinic
         exclude = ['public_id', 'owner']
+
+
+class ChatSerializer(serializers.Serializer):
+    message = serializers.CharField(min_length=1)
+    receiver_id = serializers.UUIDField()
+
+class ChatModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chat
+        exclude = ['id', 'sender', 'receiver']
+
+class ConversationSerializer(serializers.Serializer):
+    recipient_id = serializers.UUIDField()
+        
