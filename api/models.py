@@ -2,6 +2,7 @@ import uuid
 
 from django.db import models
 from authapi.models import User
+from itertools import groupby
 
 
 class Profile(models.Model):
@@ -41,3 +42,42 @@ class Clinic(models.Model):
     @classmethod
     def search_field(cls, field):
         return cls.objects.filter(public_id__icontains=field).all()
+
+
+class Chat(models.Model):
+    sender = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='sender_user'
+    )
+    receiver = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='receiver_user'
+    )
+    message = models.TextField()
+    sent_at = models.DateTimeField(auto_now_add=True)
+
+    def save_chat(self):
+        self.save()
+
+    @classmethod
+    def get_conversations(cls, user):
+        recipients = []
+        all_chats = cls.objects.filter(sender=user).all()
+
+        for chat in all_chats:
+            obj = {}
+            obj['public_id'] = chat.receiver.public_id
+            obj['first_name'] = chat.receiver.first_name
+            obj['last_name'] = chat.receiver.last_name
+
+            recipients.append(obj)
+
+        return list(map(dict, set(tuple(sorted(d.items())) for d in recipients)))
+
+    @classmethod
+    def get_conversation(cls, recipient, sender):
+        conversation_chats = Chat.objects.filter(receiver=recipient, sender=sender).all()
+
+        return conversation_chats
