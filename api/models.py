@@ -81,3 +81,40 @@ class Chat(models.Model):
         conversation_chats = Chat.objects.filter(receiver=recipient, sender=sender).all()
 
         return conversation_chats
+
+
+class Symptom(models.Model):
+    name = models.CharField(max_length=64)
+
+    @classmethod
+    def create_symptoms(cls, data, key="name"):
+        pat_symptoms = []
+        for item in data:
+            string_name = item[key]
+            db_symptom = cls.objects.filter(name=string_name.lower().capitalize()).first()
+
+            if db_symptom is None:
+                new_symptom = cls(name=string_name.lower().capitalize())
+                new_symptom.save()
+                pat_symptoms.append(new_symptom)
+
+            else:
+                pat_symptoms.append(db_symptom)
+
+        return set(pat_symptoms)
+
+
+class Examination(models.Model):
+    posted_at = models.DateTimeField(auto_now_add=True)
+    examination_date = models.DateTimeField(blank=True, null=True)
+    prescription_date = models.DateTimeField(blank=True, null=True)
+    status = models.CharField(max_length=5)
+    patient_note = models.TextField()
+    doctor_note = models.TextField(blank=True, null=True)
+    clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='patient',on_delete=models.CASCADE)
+    doctor = models.ForeignKey(User, related_name='doctor',on_delete=models.CASCADE)
+    symptoms = models.ManyToManyField(Symptom)
+
+    def save_exam(self):
+        self.save()
